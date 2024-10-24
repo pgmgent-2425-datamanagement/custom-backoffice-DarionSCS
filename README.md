@@ -1,17 +1,18 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/RN63TLFQ)
+
 # Base MVC
 
 Dit project bevat een basis opzet van MVC (Model View Controller). En helpt je om sneller te kunnen ontwikkelen, code logisch te groeperen en onderdelen te hergebruiken.
 
 ## Onderdelen
 
-| Functionaliteit | Omschrijving | Locatie |
-| ----------- | ----------- | ----------- |
-| Routing | Beslist wat er moet gebeuren met een URL en stuurt door naar Controller | /app.php |
-| Controller | Krijgt een request binnen op een method, haalt data op uit de model en stuurt dit door naar de juiste view | /Controllers/ |
-| Models | Staat in contact met de database, voert sql opdrachten uit en stuurt resultaat terug | /Models |
-| Views | Bevat de inhoud of een deel van de inhoud van een pagina | /views/... |
-| Templates | Bevat de volledige layout van de pagina | /views/_templates/... |
+| Functionaliteit | Omschrijving                                                                                               | Locatie                |
+| --------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------- |
+| Routing         | Beslist wat er moet gebeuren met een URL en stuurt door naar Controller                                    | /app.php               |
+| Controller      | Krijgt een request binnen op een method, haalt data op uit de model en stuurt dit door naar de juiste view | /Controllers/          |
+| Models          | Staat in contact met de database, voert sql opdrachten uit en stuurt resultaat terug                       | /Models                |
+| Views           | Bevat de inhoud of een deel van de inhoud van een pagina                                                   | /views/...             |
+| Templates       | Bevat de volledige layout van de pagina                                                                    | /views/\_templates/... |
 
 ## Installatie
 
@@ -20,7 +21,6 @@ Installeer de nodige packages via [composer](https://getcomposer.org/).
 ```
 ddev composer install
 ```
-
 
 ## Router
 
@@ -34,16 +34,16 @@ bv:
 $router->get('/cocktail/(\d+)', 'App\Controllers\CocktailController@detail');
 ```
 
-> Voor de routing gebruik ik een externe library. 
+> Voor de routing gebruik ik een externe library.
 > [Meer info over de mogelijkheden kan je terugvinden op de GitHub pagina](https://github.com/bramus/router)
 
 ## Controller
 
-Deze controller stuurt dus de request door naar de desbetreffende  method. CocktailController@detail wil dus zeggen dat bij de url http://localhost:8888/cocktail/1 de method `detail` wordt aanroepen in de `CocktailController` met als parameter '1'.
+Deze controller stuurt dus de request door naar de desbetreffende method. CocktailController@detail wil dus zeggen dat bij de url http://localhost:8888/cocktail/1 de method `detail` wordt aanroepen in de `CocktailController` met als parameter '1'.
 
 Een controller staat dus in voor het bekijken van de request en het versturen van de uiteindelijke response.
 
-Je kan hier validatie doen van data afkomstig van de request URI of via een formulier ($_POST).
+Je kan hier validatie doen van data afkomstig van de request URI of via een formulier ($\_POST).
 Daarnaast kan je ook data ophalen uit cookies of de session.
 
 Afhankelijk van de soort pagina zal de controller dus data moeten ophalen. Bijvoorbeeld via een of meerdere models. Bv: `Cocktail::find($id)`
@@ -90,7 +90,7 @@ class Cocktail extends BaseModel {
 
 De view wordt opgeroepen vanuit de Controller of vanuit een andere view. En stelt de html van de pagina voor.
 
-Hierin zit enkel de data, niet de volledige html. Deze zit in de template. 
+Hierin zit enkel de data, niet de volledige html. Deze zit in de template.
 
 Hieronder een voorbeeld van de view `/views/cocktail/detail.php`.
 
@@ -117,3 +117,7 @@ De layout omvat de volledige html structuur met `<head>` en `<body>`. De variabe
 </body>
 </html>
 ```
+
+# Sources
+
+UI components from hyperui.dev
