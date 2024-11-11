@@ -16,6 +16,12 @@ class BaseModel {
         return $obj;
     }
 
+
+    protected static function getDb() {
+        global $db;
+        return $db;
+    }
+
     public function __construct() {
 
         if(!isset($this->table)) {
