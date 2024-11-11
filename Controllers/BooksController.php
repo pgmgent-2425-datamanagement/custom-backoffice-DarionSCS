@@ -25,7 +25,7 @@ class BooksController extends BaseController {
         $totalBooks = Book::countFiltered($selectedCategory, $authorName);
         $totalPages = ceil($totalBooks / $limit);
     
-        self::loadView('/books/index', [
+        self::loadView('books/index', [
             'title' => 'Books',
             'books' => $books,
             'totalBooks' => $totalBooks,
@@ -44,14 +44,98 @@ class BooksController extends BaseController {
        public static function create() {
         $categories = Category::all();
         $publishers = Publisher::all();
-
+        $authors = Author::all();
+    
         self::loadView('books/create', [
             'title' => 'Add New Book',
             'categories' => $categories,
-            'publishers' => $publishers
+            'publishers' => $publishers,
+            'authors' => $authors
         ]);
-        
     }
+    
+
+    public static function edit($id) {
+        $book = Book::find($id);
+    
+        if (!$book) {
+            self::redirect('books');
+            return;
+        }
+    
+        $categories = Category::all();
+        $publishers = Publisher::all();
+        $authors = Author::all();
+        $linkedAuthors = $book->getAuthors(); // Get authors currently linked to this book
+    
+        self::loadView('books/edit', [
+            'title' => 'Edit Book',
+            'book' => $book,
+            'categories' => $categories,
+            'publishers' => $publishers,
+            'authors' => $authors,
+            'linkedAuthors' => array_column($linkedAuthors, 'id')
+        ]);
+    }
+    
+        public static function update($id) {
+            $book = Book::find($id);
+        
+            if (!$book) {
+                self::redirect('books');
+                return;
+            }
+        
+            $book->title = $_POST['title'];
+            $book->isbn = $_POST['isbn'];
+            $book->publication_year = $_POST['publication_year'];
+            $book->category_id = $_POST['category_id'];
+            $book->publisher_id = $_POST['publisher_id'];
+        
+            if ($book->update()) {
+
+                $selectedAuthors = $_POST['authors'] ?? [];
+                $book->updateAuthors($book->id, $selectedAuthors);
+        
+                self::redirect('books');
+            } else {
+                self::redirect('books/edit/' . $id);
+            }
+        }
+
+        public function updateAuthors(int $bookId, array $authorIds) {
+            $db = self::getDb();
+        
+            // Delete existing author links for the book
+            $deleteSql = 'DELETE FROM book_authors WHERE book_id = :book_id';
+            $deleteStmt = $db->prepare($deleteSql);
+            $deleteStmt->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+            $deleteStmt->execute();
+        
+            // Insert new author links
+            $insertSql = 'INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id)';
+            $insertStmt = $db->prepare($insertSql);
+        
+            foreach ($authorIds as $authorId) {
+                $insertStmt->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+                $insertStmt->bindParam(':author_id', $authorId, \PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
+        }
+        
+        
+    
+        // deletion of a book
+        public static function delete($id) {
+            $book = Book::find($id);
+            
+            if ($book && $book->delete()) {
+                self::redirect('books');
+            } else {
+
+                self::redirect('books');
+            }
+        }
 
     // Handle the form submission and create a new book
     public static function store() {
@@ -62,15 +146,19 @@ class BooksController extends BaseController {
         $book->publication_year = $_POST['publication_year'];
         $book->category_id = $_POST['category_id'];
         $book->publisher_id = $_POST['publisher_id'];
-        $book->create_time = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
-        
+    
         if ($book->save()) {
+            // linking authors if any were selected
+            $selectedAuthors = $_POST['authors'] ?? [];
+            $book->updateAuthors($book->id, $selectedAuthors);
+    
             self::redirect('books');
         } else {
-            // Handle any errors or redirect back to the form with an error message
             self::redirect('books/create');
         }
     }
+    
+    
 
     
 }

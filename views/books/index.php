@@ -78,6 +78,17 @@
                     echo implode(', ', $authorNames);
                 ?>
             </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <!-- Edit Button -->
+                <a href="/books/edit/<?php echo $book->id; ?>" class="text-blue-500 hover:underline mr-4">Edit</a>
+
+                <!-- Delete Form -->
+                <form action="/books/delete/<?php echo $book->id; ?>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this book?');">
+                    <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                </form>
+            </td>
+
+
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -112,5 +123,9 @@
     <?php endif; ?>
 </div>
 
+
+<div class="mt-8">
+    <a href="/books/create" class="text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">Add New Book</a>
+</div>
 
 

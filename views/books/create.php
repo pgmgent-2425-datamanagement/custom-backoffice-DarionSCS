@@ -27,6 +27,18 @@
             <?php endforeach; ?>
         </select>
     </div>
+    
+    <div>
+        <label for="authors" class="block text-sm font-medium text-gray-700">Authors</label>
+        <select name="authors[]" id="authors" multiple class="mt-1 block w-full border-gray-300">
+            <?php foreach ($authors as $author): ?>
+                <option value="<?php echo $author->id; ?>">
+                    <?php echo htmlspecialchars($author->first_name . ' ' . $author->last_name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <small>Select one or more authors</small>
+    </div>
 
     <div>
         <label for="publisher_id" class="block text-sm font-medium text-gray-700">Publisher</label>
@@ -39,6 +51,8 @@
             <?php endforeach; ?>
         </select>
     </div>
+
+    
 
     <div class="mt-6">
         <button type="submit" class="px-4 py-2 bg-blue-500 text-white font-bold rounded">Add Book</button>

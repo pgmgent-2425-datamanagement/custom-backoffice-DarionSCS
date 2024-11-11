@@ -22,8 +22,38 @@ class Book extends BaseModel {
         $stmt->bindParam(':category_id', $this->category_id, \PDO::PARAM_INT);
         $stmt->bindParam(':publisher_id', $this->publisher_id, \PDO::PARAM_INT);
     
+        if ($stmt->execute()) {
+            // Set the id property to the last inserted ID
+            $this->id = $this->db->lastInsertId();
+            return true;
+        }
+        return false;
+    }
+    
+
+    public function update() {
+        $sql = 'UPDATE books SET title = :title, isbn = :isbn, publication_year = :publication_year, 
+                category_id = :category_id, publisher_id = :publisher_id WHERE id = :id';
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':title', $this->title, \PDO::PARAM_STR);
+        $stmt->bindParam(':isbn', $this->isbn, \PDO::PARAM_STR);
+        $stmt->bindParam(':publication_year', $this->publication_year, \PDO::PARAM_INT);
+        $stmt->bindParam(':category_id', $this->category_id, \PDO::PARAM_INT);
+        $stmt->bindParam(':publisher_id', $this->publisher_id, \PDO::PARAM_INT);
+        $stmt->bindParam(':id', $this->id, \PDO::PARAM_INT);
+    
         return $stmt->execute();
     }
+    
+    public function delete() {
+        $sql = 'DELETE FROM books WHERE id = :id';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':id', $this->id, \PDO::PARAM_INT);
+    
+        return $stmt->execute();
+    }
+    
     
 
     
@@ -64,6 +94,26 @@ class Book extends BaseModel {
         $stmt->execute();
     
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function updateAuthors(int $bookId, array $authorIds) {
+        $db = self::getDb();
+    
+        // Delete existing author links for the book
+        $deleteSql = 'DELETE FROM book_authors WHERE book_id = :book_id';
+        $deleteStmt = $db->prepare($deleteSql);
+        $deleteStmt->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $deleteStmt->execute();
+    
+        // Insert new author links
+        $insertSql = 'INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id)';
+        $insertStmt = $db->prepare($insertSql);
+    
+        foreach ($authorIds as $authorId) {
+            $insertStmt->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+            $insertStmt->bindParam(':author_id', $authorId, \PDO::PARAM_INT);
+            $insertStmt->execute();
+        }
     }
     
     public static function filter($limit, $offset, $category = null, $authorName = null, $sort = null) {
