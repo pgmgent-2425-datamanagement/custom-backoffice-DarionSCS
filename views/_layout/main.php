@@ -13,12 +13,12 @@
   <!-- Navbar -->
   <header class="bg-gray-800 text-gray-100 shadow-md">
     <div class="container mx-auto flex justify-between items-center py-4 px-6">
-      <div class="text-xl font-semibold">BrandName</div>
+      <div class="text-xl font-semibold">Library Managment System</div>
       <nav class="space-x-6">
-        <a href="/" class="hover:text-gray-300">Home</a>
-        <a href="#" class="hover:text-gray-300">Item 2</a>
-        <a href="#" class="hover:text-gray-300">Item 3</a>
-        <a href="#" class="hover:text-gray-300">Item 4</a>
+        <a href="/" class="hover:text-gray-300">Dashboard</a>
+        <a href="/books" class="hover:text-gray-300">Books</a>
+        <a href="/categories" class="hover:text-gray-300">Categories</a>
+        <a href="/authors" class="hover:text-gray-300">Authors</a>
       </nav>
     </div>
   </header>
@@ -31,7 +31,7 @@
   <!-- Footer -->
   <footer class="bg-gray-800 text-gray-400 py-4">
     <div class="container mx-auto text-center">
-      &copy; <?= date('Y'); ?> - BrandName
+      &copy; <?= date('Y'); ?> - Library Managment System
     </div>
   </footer>
 </body>
