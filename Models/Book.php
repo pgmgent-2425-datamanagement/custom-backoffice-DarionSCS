@@ -11,6 +11,15 @@ class Book extends BaseModel {
         return Publisher::find($this->publisher_id);
     }
 
+    public function getImage() {
+        if ($this->image_id) {
+            return Image::find($this->image_id);
+        }
+        return null;
+    }
+    
+
+
     public function save() {
         $sql = 'INSERT INTO books (title, isbn, publication_year, category_id, publisher_id, create_time) 
                 VALUES (:title, :isbn, :publication_year, :category_id, :publisher_id, NOW())';
@@ -116,9 +125,10 @@ class Book extends BaseModel {
         }
     }
     
-    public static function filter($limit, $offset, $category = null, $authorName = null, $sort = null) {
+    public static function filter($limit, $offset, $category = null, $authorName = null, $bookName = null, $sort = null) {
         $sql = 'SELECT books.* FROM books';
     
+        // Join with book_authors and authors if authorName is provided
         if ($authorName) {
             $sql .= ' INNER JOIN book_authors ON books.id = book_authors.book_id';
             $sql .= ' INNER JOIN authors ON book_authors.author_id = authors.id';
@@ -126,10 +136,12 @@ class Book extends BaseModel {
     
         $sql .= ' WHERE 1=1';
     
+        // Filter by category
         if ($category) {
             $sql .= ' AND books.category_id = :category';
         }
     
+        // Filter by author name
         if ($authorName) {
             $authorParts = explode(' ', trim($authorName));
             if (count($authorParts) > 1) {
@@ -139,7 +151,12 @@ class Book extends BaseModel {
             }
         }
     
-        // Handle sorting
+        // Filter by book name
+        if ($bookName) {
+            $sql .= ' AND books.title LIKE :bookName';
+        }
+    
+        // Handle sorting (optional)
         if ($sort) {
             switch ($sort) {
                 case 'title_asc':
@@ -148,18 +165,7 @@ class Book extends BaseModel {
                 case 'title_desc':
                     $sql .= ' ORDER BY books.title DESC';
                     break;
-                case 'year_asc':
-                    $sql .= ' ORDER BY books.publication_year ASC';
-                    break;
-                case 'year_desc':
-                    $sql .= ' ORDER BY books.publication_year DESC';
-                    break;
-                case 'id_asc':
-                    $sql .= ' ORDER BY books.id ASC';
-                    break;
-                case 'id_desc':
-                    $sql .= ' ORDER BY books.id DESC';
-                    break;
+                // Add other sorting options as needed
                 default:
                     $sql .= ' ORDER BY books.id ASC';
             }
@@ -172,10 +178,10 @@ class Book extends BaseModel {
         $db = self::getDb();
         $stmt = $db->prepare($sql);
     
+        // Bind parameters
         if ($category) {
             $stmt->bindParam(':category', $category, \PDO::PARAM_INT);
         }
-    
         if ($authorName) {
             if (isset($authorParts) && count($authorParts) > 1) {
                 $firstName = '%' . $authorParts[0] . '%';
@@ -186,6 +192,10 @@ class Book extends BaseModel {
                 $searchAuthorName = '%' . $authorName . '%';
                 $stmt->bindParam(':authorName', $searchAuthorName, \PDO::PARAM_STR);
             }
+        }
+        if ($bookName) {
+            $searchBookName = '%' . $bookName . '%';
+            $stmt->bindParam(':bookName', $searchBookName, \PDO::PARAM_STR);
         }
     
         $stmt->bindParam(':limit', $limit, \PDO::PARAM_INT);
@@ -198,7 +208,8 @@ class Book extends BaseModel {
     
     
     
-    public static function countFiltered($category = null, $authorName = null) {
+    
+    public static function countFiltered($category = null, $authorName = null, $bookName = null) {
         $sql = 'SELECT COUNT(DISTINCT books.id) FROM books';
     
         // Join with book_authors and authors if authorName is provided
@@ -209,25 +220,35 @@ class Book extends BaseModel {
     
         $sql .= ' WHERE 1=1';
     
-        // apply category filter
+        // Apply category filter
         if ($category) {
             $sql .= ' AND books.category_id = :category';
         }
     
-        // apply author name filter
+        // Apply author name filter
         if ($authorName) {
             $sql .= ' AND (authors.first_name LIKE :authorName OR authors.last_name LIKE :authorName)';
+        }
+    
+        // Apply book name filter
+        if ($bookName) {
+            $sql .= ' AND books.title LIKE :bookName';
         }
     
         $db = self::getDb();
         $stmt = $db->prepare($sql);
     
+        // Bind parameters
         if ($category) {
             $stmt->bindParam(':category', $category, \PDO::PARAM_INT);
         }
         if ($authorName) {
             $searchAuthorName = '%' . $authorName . '%';
             $stmt->bindParam(':authorName', $searchAuthorName, \PDO::PARAM_STR);
+        }
+        if ($bookName) {
+            $searchBookName = '%' . $bookName . '%';
+            $stmt->bindParam(':bookName', $searchBookName, \PDO::PARAM_STR);
         }
     
         $stmt->execute();

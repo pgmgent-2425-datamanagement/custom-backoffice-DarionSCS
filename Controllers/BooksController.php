@@ -5,6 +5,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Publisher;
 use App\Models\Author;
+use App\Models\Image;
 use DateTime;
 
 class BooksController extends BaseController {
@@ -16,16 +17,17 @@ class BooksController extends BaseController {
     
         $selectedCategory = isset($_GET['category']) ? (int)$_GET['category'] : null;
         $authorName = isset($_GET['author']) ? $_GET['author'] : null;
+        $bookName = isset($_GET['book_name']) ? $_GET['book_name'] : null;
         $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
     
         $categories = Category::all();
         $authors = Author::all();
     
-        $books = Book::filter($limit, $offset, $selectedCategory, $authorName, $sort);
-        $totalBooks = Book::countFiltered($selectedCategory, $authorName);
+        $books = Book::filter($limit, $offset, $selectedCategory, $authorName, $bookName, $sort);
+        $totalBooks = Book::countFiltered($selectedCategory, $authorName, $bookName);
         $totalPages = ceil($totalBooks / $limit);
     
-        self::loadView('books/index', [
+        self::loadView('/books/index', [
             'title' => 'Books',
             'books' => $books,
             'totalBooks' => $totalBooks,
@@ -36,9 +38,11 @@ class BooksController extends BaseController {
             'authors' => $authors,
             'selectedCategory' => $selectedCategory,
             'authorName' => $authorName,
+            'bookName' => $bookName,
             'sort' => $sort
         ]);
     }
+    
     
        // Show the form to create a new book
        public static function create() {
@@ -140,23 +144,43 @@ class BooksController extends BaseController {
     // Handle the form submission and create a new book
     public static function store() {
         $book = new Book();
-        
+    
+        // Set other book properties from POST data
         $book->title = $_POST['title'];
         $book->isbn = $_POST['isbn'];
         $book->publication_year = $_POST['publication_year'];
         $book->category_id = $_POST['category_id'];
         $book->publisher_id = $_POST['publisher_id'];
     
-        if ($book->save()) {
-            // linking authors if any were selected
-            $selectedAuthors = $_POST['authors'] ?? [];
-            $book->updateAuthors($book->id, $selectedAuthors);
+        // Handle cover image upload
+        if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] == 0) {
+            $uploadDir = 'public/uploads/';
+            $fileName = uniqid() . '_' . basename($_FILES['cover_image']['name']);
+            $uploadFile = $uploadDir . $fileName;
     
-            self::redirect('books');
+            if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $uploadFile)) {
+                // Save the image info to the images table
+                $image = new Image();
+                $image->entity_id = null; // Set later after saving the book
+                $image->entity_type = 'book';
+                $image->image_url = $uploadFile;
+                $image->upload_time = date('Y-m-d H:i:s');
+    
+                if ($image->save()) {
+                    $book->image_id = $image->id;  // Set the image_id in the book
+                    $image->entity_id = $book->id; // Link image back to book
+                    $image->update(); // Update the image record with book ID
+                }
+            }
+        }
+    
+        if ($book->save()) {
+            self::redirect('/books');
         } else {
-            self::redirect('books/create');
+            self::redirect('/books/create');
         }
     }
+    
     
     
 

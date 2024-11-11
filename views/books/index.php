@@ -1,7 +1,6 @@
 <h1 class="text-2xl font-bold mb-4"><?php echo $title; ?></h1>
 
-
-<form method="GET" class="mb-4">
+<form method="GET" action="/books" class="mb-4">
     <div class="flex space-x-4">
         <!-- Category Filter -->
         <div>
@@ -26,8 +25,16 @@
                    class="mt-1 block w-full border-gray-300">
         </div>
 
-        <!-- Sort Options -->
+        <!-- Book Name Filter -->
         <div>
+            <label for="book_name" class="block text-sm font-medium text-gray-700">Book Name</label>
+            <input type="text" name="book_name" id="book_name" 
+                   value="<?php echo isset($bookName) ? htmlspecialchars($bookName) : ''; ?>" 
+                   placeholder="Search by book name" 
+                   class="mt-1 block w-full border-gray-300">
+        </div>
+        <!-- Sort Options -->
+                <div>
             <label for="sort" class="block text-sm font-medium text-gray-700">Sort By</label>
             <select name="sort" id="sort" class="mt-1 block w-full border-gray-300" onchange="this.form.submit()">
                 <option value="">Default</option>
@@ -39,14 +46,20 @@
                 <option value="id_desc" <?php echo isset($sort) && $sort == 'id_desc' ? 'selected' : ''; ?>>ID (Descending)</option>
             </select>
         </div>
+
+        <div class="hidden">
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white font-bold rounded">Search</button>
+        </div>
     </div>
 </form>
+
 
 
 
 <table class="min-w-full divide-y divide-gray-200">
     <thead>
         <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISBN</th>
@@ -59,6 +72,13 @@
     <tbody class="bg-white divide-y divide-gray-200">
         <?php foreach($books as $book): ?>
         <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <?php if ($book->getImage()): ?>
+                <img src="<?php echo htmlspecialchars($book->getImage()->image_url); ?>" alt="Cover Image" class="w-16 h-24">
+            <?php else: ?>
+                <span>No image</span>
+            <?php endif; ?>
+        </td>
             <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($book->id); ?></td>
             <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($book->title); ?></td>
             <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($book->isbn); ?></td>

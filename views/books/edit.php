@@ -1,6 +1,6 @@
 <h1 class="text-3xl font-bold mb-4"><?php echo htmlspecialchars($title); ?></h1>
 
-<form action="/books/edit/<?php echo $book->id; ?>" method="POST" class="space-y-4">
+<form action="/books/edit/<?php echo $book->id; ?>" method="POST" enctype="multipart/form-data" class="space-y-4">
     <div>
         <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
         <input type="text" name="title" id="title" value="<?php echo htmlspecialchars($book->title); ?>" required class="mt-1 block w-full border-gray-300">
@@ -52,6 +52,14 @@
                 </option>
             <?php endforeach; ?>
         </select>
+    </div>
+
+    <div>
+        <label for="cover_image" class="block text-sm font-medium text-gray-700">Cover Image</label>
+        <input type="file" name="cover_image" id="cover_image" class="mt-1 block w-full border-gray-300">
+        <?php if ($book->getImage()): ?>
+            <img src="<?php echo htmlspecialchars($book->getImage()->image_url); ?>" alt="Cover Image" class="mt-2 w-32">
+        <?php endif; ?>
     </div>
     
 
