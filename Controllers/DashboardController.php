@@ -6,7 +6,7 @@ class DashboardController extends BaseController {
 
     public static function index () {
 
-        self::loadView('/dashboard', [
+        self::loadView('dashboard', [
             'title' => 'Dashboard'
         ]);
     }

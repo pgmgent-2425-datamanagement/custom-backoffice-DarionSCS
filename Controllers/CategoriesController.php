@@ -6,7 +6,7 @@ class CategoriesController extends BaseController {
 
     public static function index () {
 
-        self::loadView('/categories', [
+        self::loadView('categories', [
             'title' => 'Categories'
         ]);
     }

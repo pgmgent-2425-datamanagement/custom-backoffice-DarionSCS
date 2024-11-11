@@ -1,7 +1,6 @@
-<!-- views/books/index.php -->
-
 <h1 class="text-2xl font-bold mb-4"><?php echo $title; ?></h1>
-<!-- Filter Controls -->
+
+
 <form method="GET" class="mb-4">
     <div class="flex space-x-4">
         <!-- Category Filter -->
@@ -26,8 +25,23 @@
                    placeholder="Search by author name" 
                    class="mt-1 block w-full border-gray-300">
         </div>
+
+        <!-- Sort Options -->
+        <div>
+            <label for="sort" class="block text-sm font-medium text-gray-700">Sort By</label>
+            <select name="sort" id="sort" class="mt-1 block w-full border-gray-300" onchange="this.form.submit()">
+                <option value="">Default</option>
+                <option value="title_asc" <?php echo isset($sort) && $sort == 'title_asc' ? 'selected' : ''; ?>>Title (A-Z)</option>
+                <option value="title_desc" <?php echo isset($sort) && $sort == 'title_desc' ? 'selected' : ''; ?>>Title (Z-A)</option>
+                <option value="year_asc" <?php echo isset($sort) && $sort == 'year_asc' ? 'selected' : ''; ?>>Publication Year (Oldest)</option>
+                <option value="year_desc" <?php echo isset($sort) && $sort == 'year_desc' ? 'selected' : ''; ?>>Publication Year (Newest)</option>
+                <option value="id_asc" <?php echo isset($sort) && $sort == 'id_asc' ? 'selected' : ''; ?>>ID (Ascending)</option>
+                <option value="id_desc" <?php echo isset($sort) && $sort == 'id_desc' ? 'selected' : ''; ?>>ID (Descending)</option>
+            </select>
+        </div>
     </div>
 </form>
+
 
 
 <table class="min-w-full divide-y divide-gray-200">
@@ -73,9 +87,11 @@
 <!-- Pagination Controls -->
 <div class="flex items-center justify-between mt-4">
     <?php 
+    // Build the query string (slugs)
         $queryParams = http_build_query([
             'category' => $selectedCategory,
-            'author' => $authorName
+            'author' => $authorName,
+            'sort' => $sort
         ]); 
     ?>
     <?php if ($page > 1): ?>

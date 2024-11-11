@@ -11,6 +11,22 @@ class Book extends BaseModel {
         return Publisher::find($this->publisher_id);
     }
 
+    public function save() {
+        $sql = 'INSERT INTO books (title, isbn, publication_year, category_id, publisher_id, create_time) 
+                VALUES (:title, :isbn, :publication_year, :category_id, :publisher_id, NOW())';
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':title', $this->title, \PDO::PARAM_STR);
+        $stmt->bindParam(':isbn', $this->isbn, \PDO::PARAM_STR);
+        $stmt->bindParam(':publication_year', $this->publication_year, \PDO::PARAM_INT);
+        $stmt->bindParam(':category_id', $this->category_id, \PDO::PARAM_INT);
+        $stmt->bindParam(':publisher_id', $this->publisher_id, \PDO::PARAM_INT);
+    
+        return $stmt->execute();
+    }
+    
+
+    
     // this is so not all books are loaded at once, making it more efficient (in terms of memory)
     public static function paginate($limit, $offset) {
         $sql = 'SELECT * FROM books LIMIT :limit OFFSET :offset';
@@ -50,53 +66,73 @@ class Book extends BaseModel {
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
     
-    public static function filter($limit, $offset, $category = null, $authorName = null) {
+    public static function filter($limit, $offset, $category = null, $authorName = null, $sort = null) {
         $sql = 'SELECT books.* FROM books';
-        
-        // Join with book_authors and authors if authorName is provided
+    
         if ($authorName) {
             $sql .= ' INNER JOIN book_authors ON books.id = book_authors.book_id';
             $sql .= ' INNER JOIN authors ON book_authors.author_id = authors.id';
         }
     
         $sql .= ' WHERE 1=1';
-        
-        // Apply category filter
+    
         if ($category) {
             $sql .= ' AND books.category_id = :category';
         }
     
-        // Apply author name filter
         if ($authorName) {
             $authorParts = explode(' ', trim($authorName));
-            
             if (count($authorParts) > 1) {
-                // If there are multiple words, assume first and last name
                 $sql .= ' AND (authors.first_name LIKE :firstName AND authors.last_name LIKE :lastName)';
             } else {
-                // If only one word, search in both first and last name columns
                 $sql .= ' AND (authors.first_name LIKE :authorName OR authors.last_name LIKE :authorName)';
             }
+        }
+    
+        // Handle sorting
+        if ($sort) {
+            switch ($sort) {
+                case 'title_asc':
+                    $sql .= ' ORDER BY books.title ASC';
+                    break;
+                case 'title_desc':
+                    $sql .= ' ORDER BY books.title DESC';
+                    break;
+                case 'year_asc':
+                    $sql .= ' ORDER BY books.publication_year ASC';
+                    break;
+                case 'year_desc':
+                    $sql .= ' ORDER BY books.publication_year DESC';
+                    break;
+                case 'id_asc':
+                    $sql .= ' ORDER BY books.id ASC';
+                    break;
+                case 'id_desc':
+                    $sql .= ' ORDER BY books.id DESC';
+                    break;
+                default:
+                    $sql .= ' ORDER BY books.id ASC';
+            }
+        } else {
+            $sql .= ' ORDER BY books.id ASC';
         }
     
         $sql .= ' LIMIT :limit OFFSET :offset';
     
         $db = self::getDb();
         $stmt = $db->prepare($sql);
-        
+    
         if ($category) {
             $stmt->bindParam(':category', $category, \PDO::PARAM_INT);
         }
-        
+    
         if ($authorName) {
             if (isset($authorParts) && count($authorParts) > 1) {
-                // Bind first and last name if both are provided
                 $firstName = '%' . $authorParts[0] . '%';
                 $lastName = '%' . $authorParts[1] . '%';
                 $stmt->bindParam(':firstName', $firstName, \PDO::PARAM_STR);
                 $stmt->bindParam(':lastName', $lastName, \PDO::PARAM_STR);
             } else {
-                // Bind single name to authorName parameter
                 $searchAuthorName = '%' . $authorName . '%';
                 $stmt->bindParam(':authorName', $searchAuthorName, \PDO::PARAM_STR);
             }
@@ -109,6 +145,7 @@ class Book extends BaseModel {
         $bookInstance = new self();
         return $bookInstance->castToModel($stmt->fetchAll());
     }
+    
     
     
     public static function countFiltered($category = null, $authorName = null) {

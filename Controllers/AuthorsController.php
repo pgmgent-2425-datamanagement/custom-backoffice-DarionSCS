@@ -6,7 +6,7 @@ class AuthorsController extends BaseController {
 
     public static function index () {
 
-        self::loadView('/authors', [
+        self::loadView('authors', [
             'title' => 'Authors'
         ]);
     }

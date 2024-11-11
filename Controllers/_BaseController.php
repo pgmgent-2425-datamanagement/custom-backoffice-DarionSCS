@@ -22,28 +22,35 @@ class BaseController {
             return $result;
         return $obj;
     }
-
-    private function loadView ($view = '', $params = [], $layout = 'main') {
-
-        //maakt variabelen van een array
+    private function loadView($view = '', $params = [], $layout = 'main') {
+        // Make variables available in the view
         extract($params);
-        
+    
+        // Determine if a specific view file is provided or default to `index.php`
+        $viewPath = strpos($view, '/') !== false ? $view : "$view/index";
+    
+        // Load the view content
         ob_start();
-        include BASE_DIR . "/views/$view/index.php";
+        include BASE_DIR . "/views/$viewPath.php";
         $content = ob_get_contents();
         ob_end_clean();
-
-        $layout = BASE_DIR . "/views/_layout/$layout.php";
-
-        if (file_exists($layout)) {
-            include $layout;
+    
+        // Load the layout
+        $layoutFile = BASE_DIR . "/views/_layout/$layout.php";
+        if (file_exists($layoutFile)) {
+            include $layoutFile;
         } else {
             echo $content;
         }
     }
+    
 
-    protected function redirect($url, $code = 302) {
-        header("Location: " . $url, true, $code);
+    protected static function redirect($url, $code = 302) {
+        // Ensure the URL is absolute
+        $fullUrl = strpos($url, '/') === 0 ? $url : '/' . $url;
+        header("Location: " . $fullUrl, true, $code);
         exit();
     }
+    
+    
 }
