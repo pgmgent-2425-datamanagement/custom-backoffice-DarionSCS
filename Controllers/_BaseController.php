@@ -29,7 +29,7 @@ class BaseController {
         extract($params);
         
         ob_start();
-        include BASE_DIR . "/views/$view.php";
+        include BASE_DIR . "/views/$view/index.php";
         $content = ob_get_contents();
         ob_end_clean();
 

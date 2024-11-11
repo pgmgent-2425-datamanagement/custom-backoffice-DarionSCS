@@ -9,24 +9,31 @@
     <?php if( $_ENV['DEV_MODE'] == "true" ) { echo time(); }; ?>
     ">
   </head>
-  <body>
-    <div class="brand">BrandName</div>
+  <body class="bg-gray-100 flex flex-col min-h-screen">
+  <!-- Navbar -->
+  <header class="bg-gray-800 text-gray-100 shadow-md">
+    <div class="container mx-auto flex justify-between items-center py-4 px-6">
+      <div class="text-xl font-semibold">BrandName</div>
+      <nav class="space-x-6">
+        <a href="/" class="hover:text-gray-300">Home</a>
+        <a href="#" class="hover:text-gray-300">Item 2</a>
+        <a href="#" class="hover:text-gray-300">Item 3</a>
+        <a href="#" class="hover:text-gray-300">Item 4</a>
+      </nav>
+    </div>
+  </header>
 
-    <nav>
-      <a href="/">Home</a>
-      <a href="#">item 2</a>
-      <a href="#">item 3</a>
-      <a href="#">item 4</a>
-    </nav>
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-6">
+    <?= $content; ?>
+  </main>
 
-    <main>
-      <?= $content; ?>
-    </main>
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-gray-400 py-4">
+    <div class="container mx-auto text-center">
+      &copy; <?= date('Y'); ?> - BrandName
+    </div>
+  </footer>
+</body>
 
-    <footer>
-      &copy;
-      <?= date('Y'); ?>
-      - BrandName
-    </footer>
-  </body>
 </html>
