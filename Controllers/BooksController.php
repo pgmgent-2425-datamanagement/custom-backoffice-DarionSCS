@@ -2,18 +2,26 @@
 namespace App\Controllers;
 
 use App\Models\Book;
+use App\Models\Category;
 
 class BooksController extends BaseController {
 
     public static function index() {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 10; 
+        $limit = 10;
         $offset = ($page - 1) * $limit;
 
-        $books = Book::paginate($limit, $offset);  // Fetch limited books for the current page
-        $totalBooks = Book::count(); 
-        $totalPages = ceil($totalBooks / $limit); // Calculate total pages
+        // get filter parameters from slug
+        $selectedCategory = isset($_GET['category']) ? (int)$_GET['category'] : null;
+        $authorName = isset($_GET['author']) ? $_GET['author'] : null;
 
+        // fetch categories for dropdown (filtering)
+        $categories = Category::all();
+
+        // apply filtering
+        $books = Book::filter($limit, $offset, $selectedCategory, $authorName);
+        $totalBooks = Book::countFiltered($selectedCategory, $authorName);
+        $totalPages = ceil($totalBooks / $limit);
 
         self::loadView('/books', [
             'title' => 'Books',
@@ -21,7 +29,10 @@ class BooksController extends BaseController {
             'totalBooks' => $totalBooks,
             'limit' => $limit,
             'page' => $page,
-            'totalPages' => $totalPages
+            'totalPages' => $totalPages,
+            'categories' => $categories,
+            'selectedCategory' => $selectedCategory,
+            'authorName' => $authorName
         ]);
     }
 }
