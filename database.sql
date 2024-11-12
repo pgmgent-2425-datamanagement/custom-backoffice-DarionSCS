@@ -109,3 +109,38 @@ CREATE TABLE `reservations` (
   CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`),
   CONSTRAINT `reservations_ibfk_2` FOREIGN KEY (`member_id`) REFERENCES `members` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+INSERT INTO categories (id, category_name) VALUES
+(1, 'Fiction'),
+(2, 'Classic Literature'),
+(3, 'Dystopian'),
+(4, 'Romance'),
+(5, 'Adventure');
+
+INSERT INTO `publishers` (`publisher_name`, `bio`, `create_time`) VALUES
+('Penguin Books', 'A global publisher', '2024-01-01 10:00:00'),
+('HarperCollins', 'A large publishing company', '2024-01-02 11:00:00'),
+('Random House', 'An American book publisher', '2024-01-03 12:00:00'),
+('Oxford University Press', 'Publisher of academic texts', '2024-01-04 13:00:00'),
+('Macmillan Publishers', 'British publishing company', '2024-01-05 14:00:00');
+
+
+INSERT INTO book_authors (book_id, author_id) VALUES
+(1, 5),
+(2, 4),
+(3, 3),
+(4, 2),
+(5, 1);
+
+INSERT INTO `books` (`title`, `isbn`, `publication_year`, `publisher_id`, `category_id`, `create_time`) VALUES
+('To Kill a Mockingbird', '9780061120084', 1960, 1, 2, '2024-01-01 10:00:00'),
+('1984', '9780451524935', 1949, 2, 3, '2024-01-02 11:00:00'),
+('Pride and Prejudice', '9780141040349', 1813, 1, 1, '2024-01-03 12:00:00'),
+('The Great Gatsby', '9780743273565', 1925, 3, 2, '2024-01-04 13:00:00'),
+('Moby Dick', '9781503280786', 1851, 2, 4, '2024-01-05 14:00:00'),
+('War and Peace', '9780199232765', 1869, 4, 5, '2024-01-06 15:00:00'),
+('The Catcher in the Rye', '9780316769488', 1951, 3, 3, '2024-01-07 16:00:00'),
+('The Hobbit', '9780547928227', 1937, 5, 2, '2024-01-08 17:00:00'),
+('Ulysses', '9780199535675', 1922, 4, 1, '2024-01-09 18:00:00'),
+('Madame Bovary', '9780140449129', 1856, 1, 4, '2024-01-10 19:00:00');
