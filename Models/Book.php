@@ -32,7 +32,7 @@ class Book extends BaseModel {
         $stmt->bindParam(':publisher_id', $this->publisher_id, \PDO::PARAM_INT);
     
         if ($stmt->execute()) {
-            // Set the id property to the last inserted ID
+            // SEt the id property to the last inserted ID
             $this->id = $this->db->lastInsertId();
             return true;
         }
